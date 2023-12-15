@@ -3,18 +3,13 @@ import os
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 from PIL import Image
 from sklearn.metrics import confusion_matrix, classification_report
-import joblib
-import warnings
-
-# Disable warnings
-warnings.filterwarnings("ignore")
 
 # Function to display images
 def display_images(data_folder, categories, sample_count=5):
@@ -22,7 +17,7 @@ def display_images(data_folder, categories, sample_count=5):
         folder_path = os.path.join(data_folder, category.replace(' ', '_'))
         st.write(f"## {category} Images")
         class_counts = len(os.listdir(folder_path))
-
+        
         # Visualize the first few images
         sample_images = os.listdir(folder_path)[:sample_count]
         for img_name in sample_images:
@@ -30,14 +25,8 @@ def display_images(data_folder, categories, sample_count=5):
             img = Image.open(img_path)
             st.image(img, caption=f"{category} - {img_name}", use_column_width=True)
 
-# Variables to store results
-test_results = None
-conf_matrix = None
-class_report = None
 
-def train_and_evaluate_model(train_gen, val_gen, test_gen, categories, progress_bar):
-    global test_results, conf_matrix, class_report
-
+def train_and_evaluate_model(train_gen, val_gen, test_gen, categories):
     model = Sequential()
 
     # Convolutional layers
@@ -66,7 +55,7 @@ def train_and_evaluate_model(train_gen, val_gen, test_gen, categories, progress_
     model.summary()
 
     st.write("## Training the Model")
-    history = model.fit(train_gen, epochs=3, validation_data=val_gen)
+    history = model.fit(train_gen, epochs=5, validation_data=val_gen)
 
     st.write("## Training and Validation Loss Plot")
     plt.plot(history.history['loss'], label='Training Loss')
@@ -96,18 +85,6 @@ def train_and_evaluate_model(train_gen, val_gen, test_gen, categories, progress_
     class_report = classification_report(test_true_labels, test_pred_labels, target_names=categories)
     st.write(class_report)
 
-    # Save the model and history to files
-    model.save('saved_model.h5')
-    joblib.dump(history.history, 'training_history.joblib')
-
-def load_model_and_history():
-    try:
-        model = load_model('saved_model.h5')
-        history = joblib.load('training_history.joblib')
-        return model, history
-    except (OSError, IOError) as e:
-        return None, None
-
 # Your data and model paths
 data_folder = "."
 root_folder = "."
@@ -118,8 +95,7 @@ test_path = os.path.join(root_folder, "test")
 # Your categories list
 categories = ["Dog", "Cat", "Bird", "Spider", "Elephant"]
 
-# Assuming you have defined categories and
-# paths
+# Assuming you have defined categories and paths
 train_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
     train_path,
     target_size=(128, 128),
@@ -134,6 +110,7 @@ val_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
     class_mode='categorical'
 )
 
+# Assuming you have defined categories and paths
 test_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
     test_path,
     target_size=(128, 128),
@@ -141,70 +118,21 @@ test_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
     class_mode='categorical'
 )
 
-# ... (existing code)
-
 # Streamlit app
 st.title("Image Classification Streamlit App")
 
+# Display images
+display_images(data_folder, categories)
+
 # Check if the model is trained
 model_trained = st.session_state.get('model_trained', False)
-model_loaded = st.session_state.get('model_loaded', False)
-test_results = None
-conf_matrix = None
-class_report = None
-
-if not model_loaded:
-    # Load the model and history
-    model, history = load_model_and_history()
-    st.session_state.model_loaded = True
 
 if not model_trained:
     # Button to trigger model training
     if st.button("Train Model"):
         # Train and evaluate the model
-        train_and_evaluate_model(train_gen, val_gen, test_gen, categories, st.progress)
+        train_and_evaluate_model(train_gen, val_gen, test_gen, categories)
         # Set the model_trained flag to True
         st.session_state.model_trained = True
-
-# Dropdown for selecting different parts of the output
-output_selection = st.selectbox("Select Output:", ["Model Summary", "Loss Plot", "Evaluation Results", "Confusion Matrix", "Classification Report"])
-if output_selection == "Model Summary":
-    st.write("## Model Summary")
-    model.summary()
-elif output_selection == "Loss Plot":
-    st.write("## Training and Validation Loss Plot")
-    if history:
-        plt.plot(history['loss'], label='Training Loss')
-        plt.plot(history['val_loss'], label='Validation Loss')
-        plt.xlabel('Epoch')
-        plt.ylabel('Loss')
-        plt.legend()
-        st.pyplot()
-    else:
-        st.write("Model has not been trained.")
-elif output_selection == "Evaluation Results":
-    if test_results:
-        st.write("## Evaluating the Model on Test Set")
-        st.write("Test Loss:", test_results[0])
-        st.write("Test Accuracy:", test_results[1])
-    else:
-        st.write("Model has not been trained.")
-elif output_selection == "Confusion Matrix":
-    if conf_matrix is not None:
-        st.write("## Confusion Matrix")
-        plt.figure(figsize=(8, 8))
-        sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=categories, yticklabels=categories)
-        plt.xlabel('Predicted')
-        plt.ylabel('True')
-        st.pyplot()
-    else:
-        st.write("Model has not been trained.")
-elif output_selection == "Classification Report":
-    if class_report:
-        st.write("## Classification Report")
-        st.write(class_report)
-    else:
-        st.write("Model has not been trained.")
-
-# Display images
-display_images(data_folder, categories)
+else:
+    st.write("Model has already been trained.")
