@@ -136,6 +136,9 @@ test_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
 # Streamlit app
 st.title("Image Classification Streamlit App")
 
+# Check if the model is trained
+model_trained = st.session_state.get('model_trained', False)
+
 
 if not model_trained:
     # Button to trigger model training
@@ -182,6 +185,4 @@ elif output_selection == "Classification Report":
 # Display images
 display_images(data_folder, categories)
 
-# Check if the model is trained
-model_trained = st.session_state.get('model_trained', False)
 
