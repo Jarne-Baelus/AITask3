@@ -57,7 +57,7 @@ def train_and_evaluate_model(train_gen, val_gen, test_gen, categories, progress_
 
     # Progress bar during training
     with progress_bar:
-        history = model.fit(train_gen, epochs=5, validation_data=val_gen)
+        history = model.fit(train_gen, epochs=3, validation_data=val_gen)
 
     st.write("## Training and Validation Loss Plot")
     plt.plot(history.history['loss'], label='Training Loss')
