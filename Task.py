@@ -24,7 +24,7 @@ def display_images(data_folder, categories, sample_count=5):
             img_path = os.path.join(folder_path, img_name)
             img = Image.open(img_path)
             st.image(img, caption=f"{category} - {img_name}", use_column_width=True)
-            
+
 # Function to train and evaluate the model
 @st.cache(allow_output_mutation=True)
 def train_and_evaluate_model(train_gen, val_gen, test_gen, categories):
@@ -125,5 +125,15 @@ st.title("Image Classification Streamlit App")
 # Display images
 display_images(data_folder, categories)
 
-# Train and evaluate the model
-train_and_evaluate_model(train_gen, val_gen, test_gen, categories)
+# Check if the model is trained
+model_trained = st.session_state.get('model_trained', False)
+
+if not model_trained:
+    # Button to trigger model training
+    if st.button("Train Model"):
+        # Train and evaluate the model
+        train_and_evaluate_model(train_gen, val_gen, test_gen, categories)
+        # Set the model_trained flag to True
+        st.session_state.model_trained = True
+else:
+    st.write("Model has already been trained.")
