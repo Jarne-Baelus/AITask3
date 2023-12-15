@@ -99,14 +99,14 @@ categories = ["Dog", "Cat", "Bird", "Spider", "Elephant"]
 train_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
     train_path,
     target_size=(224, 224),
-    batch_size=16,
+    batch_size=32,
     class_mode='categorical'
 )
 
 val_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
     val_path,
     target_size=(224, 224),
-    batch_size=8,
+    batch_size=32,
     class_mode='categorical'
 )
 
@@ -114,7 +114,7 @@ val_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
 test_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
     test_path,
     target_size=(224, 224),
-    batch_size=8,
+    batch_size=32,
     class_mode='categorical'
 )
 
