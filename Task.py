@@ -55,7 +55,7 @@ def train_and_evaluate_model(train_gen, val_gen, test_gen, categories):
     model.summary()
 
     st.write("## Training the Model")
-    history = model.fit(train_gen, epochs=10, validation_data=val_gen)
+    history = model.fit(train_gen, epochs=5, validation_data=val_gen)
 
     st.write("## Training and Validation Loss Plot")
     plt.plot(history.history['loss'], label='Training Loss')
