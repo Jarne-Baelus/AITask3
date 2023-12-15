@@ -25,8 +25,7 @@ def display_images(data_folder, categories, sample_count=5):
             img = Image.open(img_path)
             st.image(img, caption=f"{category} - {img_name}", use_column_width=True)
 
-# Function to train and evaluate the model
-@st.cache(allow_output_mutation=True)
+
 def train_and_evaluate_model(train_gen, val_gen, test_gen, categories):
     model = Sequential()
 
