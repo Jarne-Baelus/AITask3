@@ -141,6 +141,7 @@ test_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
     class_mode='categorical'
 )
 
+# ... (existing code)
 
 # Streamlit app
 st.title("Image Classification Streamlit App")
