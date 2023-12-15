@@ -168,15 +168,9 @@ if not model_trained:
 
 # Dropdown for selecting different parts of the output
 output_selection = st.selectbox("Select Output:", ["Model Summary", "Loss Plot", "Evaluation Results", "Confusion Matrix", "Classification Report"])
-# ... (existing code)
-
-# Display additional information based on the selected dropdown
 if output_selection == "Model Summary":
-    if model:
-        st.write("## Model Summary")
-        model.summary()
-    else:
-        st.write("Model has not been loaded.")
+    st.write("## Model Summary")
+    model.summary()
 elif output_selection == "Loss Plot":
     st.write("## Training and Validation Loss Plot")
     if history:
@@ -185,7 +179,30 @@ elif output_selection == "Loss Plot":
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
         plt.legend()
-        st.pyplot()  # Display the plot using st.pyplot()
+        st.pyplot()
+    else:
+        st.write("Model has not been trained.")
+elif output_selection == "Evaluation Results":
+    if test_results:
+        st.write("## Evaluating the Model on Test Set")
+        st.write("Test Loss:", test_results[0])
+        st.write("Test Accuracy:", test_results[1])
+    else:
+        st.write("Model has not been trained.")
+elif output_selection == "Confusion Matrix":
+    if conf_matrix is not None:
+        st.write("## Confusion Matrix")
+        plt.figure(figsize=(8, 8))
+        sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=categories, yticklabels=categories)
+        plt.xlabel('Predicted')
+        plt.ylabel('True')
+        st.pyplot()
+    else:
+        st.write("Model has not been trained.")
+elif output_selection == "Classification Report":
+    if class_report:
+        st.write("## Classification Report")
+        st.write(class_report)
     else:
         st.write("Model has not been trained.")
 
