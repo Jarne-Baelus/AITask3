@@ -30,7 +30,14 @@ def display_images(data_folder, categories, sample_count=5):
             img = Image.open(img_path)
             st.image(img, caption=f"{category} - {img_name}", use_column_width=True)
 
+# Variables to store results
+test_results = None
+conf_matrix = None
+class_report = None
+
 def train_and_evaluate_model(train_gen, val_gen, test_gen, categories, progress_bar):
+    global test_results, conf_matrix, class_report
+
     model = Sequential()
 
     # Convolutional layers
@@ -94,11 +101,12 @@ def train_and_evaluate_model(train_gen, val_gen, test_gen, categories, progress_
     joblib.dump(history.history, 'training_history.joblib')
 
 def load_model_and_history():
-    # Load the model and training history
-    if load_model('saved_model.h5'):
+    try:
         model = load_model('saved_model.h5')
         history = joblib.load('training_history.joblib')
         return model, history
+    except (OSError, IOError) as e:
+        return None, None
 
 # Your data and model paths
 data_folder = "."
@@ -110,7 +118,8 @@ test_path = os.path.join(root_folder, "test")
 # Your categories list
 categories = ["Dog", "Cat", "Bird", "Spider", "Elephant"]
 
-# Assuming you have defined categories and paths
+# Assuming you have defined categories and
+# paths
 train_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
     train_path,
     target_size=(128, 128),
@@ -125,7 +134,6 @@ val_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
     class_mode='categorical'
 )
 
-# Assuming you have defined categories and paths
 test_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
     test_path,
     target_size=(128, 128),
@@ -138,7 +146,6 @@ st.title("Image Classification Streamlit App")
 
 # Check if the model is trained
 model_trained = st.session_state.get('model_trained', False)
-
 
 if not model_trained:
     # Button to trigger model training
@@ -160,29 +167,38 @@ if output_selection == "Model Summary":
     model.summary()
 elif output_selection == "Loss Plot":
     st.write("## Training and Validation Loss Plot")
-    plt.plot(history['loss'], label='Training Loss')
-    plt.plot(history['val_loss'], label='Validation Loss')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.legend()
-    st.pyplot()
+    if history:
+        plt.plot(history['loss'], label='Training Loss')
+        plt.plot(history['val_loss'], label='Validation Loss')
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.legend()
+        st.pyplot()
+    else:
+        st.write("Model has not been trained.")
 elif output_selection == "Evaluation Results":
-    st.write("## Evaluating the Model on Test Set")
-    st.write("Test Loss:", test_results[0])
-    st.write("Test Accuracy:", test_results[1])
+    if test_results:
+        st.write("## Evaluating the Model on Test Set")
+        st.write("Test Loss:", test_results[0])
+        st.write("Test Accuracy:", test_results[1])
+    else:
+        st.write("Model has not been trained.")
 elif output_selection == "Confusion Matrix":
-    st.write("## Confusion Matrix")
-    plt.figure(figsize=(8, 8))
-    sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=categories, yticklabels=categories)
-    plt.xlabel('Predicted')
-    plt.ylabel('True')
-    st.pyplot()
+    if conf_matrix is not None:
+        st.write("## Confusion Matrix")
+        plt.figure(figsize=(8, 8))
+        sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=categories, yticklabels=categories)
+        plt.xlabel('Predicted')
+        plt.ylabel('True')
+        st.pyplot()
+    else:
+        st.write("Model has not been trained.")
 elif output_selection == "Classification Report":
-    st.write("## Classification Report")
-    st.write(class_report)
-
+    if class_report:
+        st.write("## Classification Report")
+        st.write(class_report)
+    else:
+        st.write("Model has not been trained.")
 
 # Display images
 display_images(data_folder, categories)
-
-
