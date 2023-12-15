@@ -95,9 +95,10 @@ def train_and_evaluate_model(train_gen, val_gen, test_gen, categories, progress_
 
 def load_model_and_history():
     # Load the model and training history
-    model = load_model('saved_model.h5')
-    history = joblib.load('training_history.joblib')
-    return model, history
+    if load_model('saved_model.h5'):
+        model = load_model('saved_model.h5')
+        history = joblib.load('training_history.joblib')
+        return model, history
 
 # Your data and model paths
 data_folder = "."
@@ -135,11 +136,6 @@ test_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
 # Streamlit app
 st.title("Image Classification Streamlit App")
 
-# Display images
-display_images(data_folder, categories)
-
-# Check if the model is trained
-model_trained = st.session_state.get('model_trained', False)
 
 if not model_trained:
     # Button to trigger model training
@@ -181,3 +177,11 @@ elif output_selection == "Confusion Matrix":
 elif output_selection == "Classification Report":
     st.write("## Classification Report")
     st.write(class_report)
+
+
+# Display images
+display_images(data_folder, categories)
+
+# Check if the model is trained
+model_trained = st.session_state.get('model_trained', False)
+
