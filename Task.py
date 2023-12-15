@@ -25,8 +25,7 @@ def display_images(data_folder, categories, sample_count=5):
             img = Image.open(img_path)
             st.image(img, caption=f"{category} - {img_name}", use_column_width=True)
 
-
-def train_and_evaluate_model(train_gen, val_gen, test_gen, categories):
+def train_and_evaluate_model(train_gen, val_gen, test_gen, categories, progress_bar):
     model = Sequential()
 
     # Convolutional layers
@@ -55,7 +54,10 @@ def train_and_evaluate_model(train_gen, val_gen, test_gen, categories):
     model.summary()
 
     st.write("## Training the Model")
-    history = model.fit(train_gen, epochs=5, validation_data=val_gen)
+
+    # Progress bar during training
+    with progress_bar:
+        history = model.fit(train_gen, epochs=5, validation_data=val_gen)
 
     st.write("## Training and Validation Loss Plot")
     plt.plot(history.history['loss'], label='Training Loss')
@@ -130,8 +132,10 @@ model_trained = st.session_state.get('model_trained', False)
 if not model_trained:
     # Button to trigger model training
     if st.button("Train Model"):
+        # Progress bar during training
+        progress_bar = st.progress(0)
         # Train and evaluate the model
-        train_and_evaluate_model(train_gen, val_gen, test_gen, categories)
+        train_and_evaluate_model(train_gen, val_gen, test_gen, categories, progress_bar)
         # Set the model_trained flag to True
         st.session_state.model_trained = True
 else:
