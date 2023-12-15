@@ -141,30 +141,40 @@ test_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
     class_mode='categorical'
 )
 
+
 # Streamlit app
 st.title("Image Classification Streamlit App")
 
 # Check if the model is trained
 model_trained = st.session_state.get('model_trained', False)
+model_loaded = st.session_state.get('model_loaded', False)
+test_results = None
+conf_matrix = None
+class_report = None
+
+if not model_loaded:
+    # Load the model and history
+    model, history = load_model_and_history()
+    st.session_state.model_loaded = True
 
 if not model_trained:
     # Button to trigger model training
     if st.button("Train Model"):
         # Train and evaluate the model
-        train_and_evaluate_model(train_gen, val_gen, test_gen, categories, st.progress_bar)
+        train_and_evaluate_model(train_gen, val_gen, test_gen, categories, st.progress)
         # Set the model_trained flag to True
         st.session_state.model_trained = True
-
-# Load the model and history
-model, history = load_model_and_history()
 
 # Dropdown for selecting different parts of the output
 output_selection = st.selectbox("Select Output:", ["Model Summary", "Loss Plot", "Evaluation Results", "Confusion Matrix", "Classification Report"])
 
 # Display additional information based on the selected dropdown
 if output_selection == "Model Summary":
-    st.write("## Model Summary")
-    model.summary()
+    if model:
+        st.write("## Model Summary")
+        model.summary()
+    else:
+        st.write("Model has not been loaded.")
 elif output_selection == "Loss Plot":
     st.write("## Training and Validation Loss Plot")
     if history:
@@ -174,29 +184,6 @@ elif output_selection == "Loss Plot":
         plt.ylabel('Loss')
         plt.legend()
         st.pyplot()
-    else:
-        st.write("Model has not been trained.")
-elif output_selection == "Evaluation Results":
-    if test_results:
-        st.write("## Evaluating the Model on Test Set")
-        st.write("Test Loss:", test_results[0])
-        st.write("Test Accuracy:", test_results[1])
-    else:
-        st.write("Model has not been trained.")
-elif output_selection == "Confusion Matrix":
-    if conf_matrix is not None:
-        st.write("## Confusion Matrix")
-        plt.figure(figsize=(8, 8))
-        sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=categories, yticklabels=categories)
-        plt.xlabel('Predicted')
-        plt.ylabel('True')
-        st.pyplot()
-    else:
-        st.write("Model has not been trained.")
-elif output_selection == "Classification Report":
-    if class_report:
-        st.write("## Classification Report")
-        st.write(class_report)
     else:
         st.write("Model has not been trained.")
 
