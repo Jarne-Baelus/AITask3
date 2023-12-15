@@ -168,6 +168,7 @@ if not model_trained:
 
 # Dropdown for selecting different parts of the output
 output_selection = st.selectbox("Select Output:", ["Model Summary", "Loss Plot", "Evaluation Results", "Confusion Matrix", "Classification Report"])
+# ... (existing code)
 
 # Display additional information based on the selected dropdown
 if output_selection == "Model Summary":
@@ -184,7 +185,7 @@ elif output_selection == "Loss Plot":
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
         plt.legend()
-        st.pyplot()
+        st.pyplot()  # Display the plot using st.pyplot()
     else:
         st.write("Model has not been trained.")
 
