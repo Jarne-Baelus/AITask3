@@ -1,8 +1,7 @@
 streamlit
 pandas
-scikit-learn
 seaborn
 tensorflow
 matplotlib
 Pillow
-
+scikit-learn
