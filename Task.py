@@ -30,7 +30,7 @@ def train_and_evaluate_model(train_gen, val_gen, test_gen, categories):
     model = Sequential()
 
     # Convolutional layers
-    model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(224, 224, 3)))
+    model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(128, 128, 3)))
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
     model.add(Conv2D(64, (3, 3), activation='relu'))
