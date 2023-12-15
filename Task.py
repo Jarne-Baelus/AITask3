@@ -26,6 +26,7 @@ def display_images(data_folder, categories, sample_count=5):
             st.image(img, caption=f"{category} - {img_name}", use_column_width=True)
             
 # Function to train and evaluate the model
+@st.cache
 def train_and_evaluate_model(train_gen, val_gen, test_gen, categories):
     model = Sequential()
 
@@ -55,7 +56,7 @@ def train_and_evaluate_model(train_gen, val_gen, test_gen, categories):
     model.summary()
 
     st.write("## Training the Model")
-    history = model.fit(train_gen, epochs=1, validation_data=val_gen)
+    history = model.fit(train_gen, epochs=10, validation_data=val_gen)
 
     st.write("## Training and Validation Loss Plot")
     plt.plot(history.history['loss'], label='Training Loss')
@@ -99,14 +100,14 @@ categories = ["Dog", "Cat", "Bird", "Spider", "Elephant"]
 train_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
     train_path,
     target_size=(224, 224),
-    batch_size=1,
+    batch_size=32,
     class_mode='categorical'
 )
 
 val_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
     val_path,
     target_size=(224, 224),
-    batch_size=1,
+    batch_size=32,
     class_mode='categorical'
 )
 
@@ -114,7 +115,7 @@ val_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
 test_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
     test_path,
     target_size=(224, 224),
-    batch_size=1,
+    batch_size=32,
     class_mode='categorical'
 )
 
