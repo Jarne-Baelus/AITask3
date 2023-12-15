@@ -121,9 +121,6 @@ test_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
 # Streamlit app
 st.title("Image Classification Streamlit App")
 
-# Display images
-display_images(data_folder, categories)
-
 # Check if the model is trained
 model_trained = st.session_state.get('model_trained', False)
 
@@ -136,3 +133,7 @@ if not model_trained:
         st.session_state.model_trained = True
 else:
     st.write("Model has already been trained.")
+
+# Display images
+display_images(data_folder, categories)
+
